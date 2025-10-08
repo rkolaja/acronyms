@@ -1,0 +1,6 @@
+.vscode/perl-lang/
+local/
+
+*.csv
+*.txt
+!LICENSE.txt

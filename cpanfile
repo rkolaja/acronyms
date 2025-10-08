@@ -1,0 +1,1 @@
+requires 'File::Slurp', '9999.32';
