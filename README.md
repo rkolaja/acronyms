@@ -32,8 +32,11 @@ To use this script, export your document as a plaintext file. Then run the
 following:
 
 ```sh
-acronyms.pl /path/to/plaintext/report.txt
+acronyms.pl [--in-order] /path/to/plaintext/report.txt
 ```
+
+The _optional_ `--in-order` switch tells the tool to print acronym counts in the
+order they first appear in the input file.
 
 > [!NOTE]
 > If using the devcontainer, copy the text file to the same directory as

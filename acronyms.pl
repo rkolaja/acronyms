@@ -22,10 +22,15 @@ use 5.032;
 use strict;
 use warnings;
 use Carp;
+use Getopt::Long qw(:config gnu_getopt);
 
 use FindBin qw($RealBin);
 use lib "$RealBin/local/lib/perl5";
 use File::Slurp qw(read_file);
+
+my $inOrder = 0;
+GetOptions ('in-order|i' => \$inOrder,)
+    or die("Error in command line arguments\n");
 
 my $inputFile = $ARGV[0];
 
@@ -43,6 +48,7 @@ my @lines =
   read_file($inputFile, chomp => 1, buf_ref => \$buffer, binmode => ':raw');
 
 my %acronyms = ();
+my @acronymsInOrder = ();
 
 foreach my $line (@lines)
 {
@@ -55,10 +61,11 @@ foreach my $line (@lines)
         my $before = $word;
         $word =~ s/[^\w\-=<>]//gs;
 
-        # if ($before ne $word)
-        # {
-        #     print {*STDERR} "BEFORE: ${before}; AFTER: ${word}\n";
-        # }
+        if (!defined $acronyms{$word})
+        {
+            push @acronymsInOrder, $word;
+        }
+
         $acronyms{$word}++;
     }
 }
@@ -78,7 +85,24 @@ foreach my $acronym (sort { lc $a cmp lc $b } keys %acronyms)
     }
 }
 
-foreach my $acronym (sort { lc $a cmp lc $b } keys %acronyms)
+my @printOrder = ();
+if ($inOrder)
 {
+    @printOrder = @acronymsInOrder;
+}
+else
+{
+    @printOrder = sort { lc $a cmp lc $b } keys %acronyms;
+}
+
+foreach my $acronym (@printOrder)
+{
+    if (!defined $acronyms{$acronym})
+    {
+        # This covers the case where plural removal drops an entry which still
+        # appears in @acronymsInOrder
+        next;
+    }
+
     print sprintf("%s,%d\n", $acronym, $acronyms{$acronym}) or croak;
 }
